@@ -1,0 +1,68 @@
+name: WARDOGS V6 Discord Cutover (manual only)
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'preview = no Discord writes; publish = edit existing Discord message'
+        type: choice
+        required: true
+        default: preview
+        options:
+          - preview
+          - publish
+      confirm:
+        description: 'For publish only: type PUBLISH after disabling the LOCAL Discord task'
+        type: string
+        required: false
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: wardogs-discord-cutover
+  cancel-in-progress: false
+jobs:
+  test_and_optional_publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check no secrets committed
+        shell: bash
+        run: |
+          test ! -e cloud/webhook.json
+          test ! -e cloud/state.json
+          test ! -e cloud/steam_lobbies.json
+          test ! -e cloud/steam_browser_profile_PRIVATE
+      - name: Fetch WARDOGS and render read-only preview
+        run: python cloud/wardogs_discord.py --preview
+      - name: Validate 9 servers and 1 message
+        run: |
+          python cloud/verify_preview.py
+          python -c "import json; p=json.load(open('cloud/preview.json',encoding='utf-8')); assert len(p)==1, 'Safety stop: cannot PATCH more than one message'"
+      - name: Upload preview as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wardogs-v6-cutover-preview
+          path: |
+            cloud/preview.txt
+            cloud/preview.json
+          retention-days: 2
+      - name: Safety gate for publish mode
+        if: ${{ inputs.action == 'publish' }}
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "PUBLISH" ]; then
+            echo 'STOP: publish requires confirm=PUBLISH, and local Discord task must already be disabled.'
+            exit 1
+          fi
+      - name: PATCH existing Discord message (NEVER creates a new message)
+        if: ${{ inputs.action == 'publish' }}
+        env:
+          WARDOGS_CONFIRM: ${{ inputs.confirm }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_MESSAGE_ID: ${{ secrets.DISCORD_MESSAGE_ID }}
+        run: python cloud/publish_existing.py
