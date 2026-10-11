@@ -1,0 +1,43 @@
+{
+  "title": "WARDOGS | UNSERE SERVERLISTE",
+  "servers": [
+    {
+      "id": "22cc9e04-8a6a-42c5-8f78-70a76f6955df",
+      "note": "",
+      "label": "HUNDEHÜTTE"
+    },
+    {
+      "id": "91052133-1e18-4af8-b54e-499ab279f446",
+      "note": ""
+    },
+    {
+      "id": "fcf5b164-c704-449e-bde5-63f3cb1c2953",
+      "note": "blau wins"
+    },
+    {
+      "id": "ba6ba612-9628-411c-b7cf-f71a2a03a351",
+      "note": ""
+    },
+    {
+      "id": "76cbde51-1fe6-40b8-af62-2a8ec7e27439",
+      "category": "mixed",
+      "note": "Wechselt zwischen Regular und Infantry Only (Hinweis aus der Community)"
+    },
+    {
+      "id": "5e4e254f-fb6e-4423-8678-730ef56bd14b",
+      "note": "good blue"
+    },
+    {
+      "id": "9a3ff8da-06a6-414f-b9c6-6e59c1c26355",
+      "note": ""
+    },
+    {
+      "id": "78e42cf4-765c-4a92-83e5-7956a555eb04",
+      "note": ""
+    },
+    {
+      "id": "5633a671-5318-4a23-a4eb-5e4e79835b8f",
+      "note": ""
+    }
+  ]
+}
