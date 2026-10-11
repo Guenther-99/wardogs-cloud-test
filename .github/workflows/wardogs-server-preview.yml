@@ -1,0 +1,34 @@
+name: WARDOGS V6 Server Preview (read-only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate package contains no webhook or session secrets
+        shell: bash
+        run: |
+          test ! -e cloud/webhook.json
+          test ! -e cloud/state.json
+          test ! -e cloud/steam_browser_profile_PRIVATE
+      - name: Fetch real WARDOGS snapshot and render preview (NO DISCORD WRITES)
+        run: python cloud/wardogs_discord.py --preview
+      - name: Verify all configured server links
+        run: python cloud/verify_preview.py
+      - name: Upload preview output
+        uses: actions/upload-artifact@v4
+        with:
+          name: wardogs-v6-preview
+          path: |
+            cloud/preview.txt
+            cloud/preview.json
+          retention-days: 3
